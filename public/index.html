@@ -1,101 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Event Registration System — Create events, register attendees, and manage seat availability in real time." />
-  <title>EventHub — Event Registration System</title>
+  <meta name="description" content="EventHub — Event Registration System" />
+  <title>EventHub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- ─── Background blobs ─── -->
-  <div class="bg-blob blob-1"></div>
-  <div class="bg-blob blob-2"></div>
-  <div class="bg-blob blob-3"></div>
+  <!-- Decorative shapes -->
+  <div class="bg-shape shape-1"></div>
+  <div class="bg-shape shape-2"></div>
+  <div class="bg-shape shape-3"></div>
 
-  <!-- ─── Header ─── -->
+  <!-- Header -->
   <header id="app-header">
     <div class="header-inner">
-      <div class="logo">
-        <span class="logo-icon">📅</span>
-        <h1>Event<span class="accent">Hub</span></h1>
+      <div class="header-left">
+        <div class="logo">
+          <div class="logo-icon">🎈</div>
+          <h1>Event<span class="accent">Hub</span></h1>
+        </div>
+        <p class="tagline">Seamless event management</p>
       </div>
-      <p class="tagline">Seamless event registration &amp; seat management</p>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <div class="theme-toggle-knob">☀️</div>
+      </button>
     </div>
   </header>
 
-  <!-- ─── Main ─── -->
   <main id="app-main">
-
-    <!-- ── Stats bar ── -->
-    <section id="stats-bar" class="glass-card stats-bar">
-      <div class="stat">
+    <!-- Stats -->
+    <section class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-emoji">📅</div>
         <span class="stat-value" id="stat-total-events">0</span>
         <span class="stat-label">Total Events</span>
       </div>
-      <div class="stat">
+      <div class="stat-card">
+        <div class="stat-emoji">🚀</div>
         <span class="stat-value" id="stat-upcoming">0</span>
         <span class="stat-label">Upcoming</span>
       </div>
-      <div class="stat">
+      <div class="stat-card">
+        <div class="stat-emoji">👥</div>
         <span class="stat-value" id="stat-registrations">0</span>
         <span class="stat-label">Registrations</span>
       </div>
-      <div class="stat">
+      <div class="stat-card">
+        <div class="stat-emoji">🎟️</div>
         <span class="stat-value" id="stat-available">0</span>
-        <span class="stat-label">Seats Available</span>
+        <span class="stat-label">Available Seats</span>
       </div>
     </section>
 
-    <!-- ── Toolbar ── -->
+    <!-- Toolbar -->
     <section class="toolbar">
-      <div class="toolbar-left">
-        <h2>Events</h2>
-        <div class="filter-group">
-          <label class="toggle-label">
-            <input type="checkbox" id="filter-upcoming" />
-            <span class="toggle-switch"></span>
-            Upcoming only
-          </label>
-          <label class="toggle-label">
-            <input type="checkbox" id="sort-date" checked />
-            <span class="toggle-switch"></span>
-            Sort by date
-          </label>
-        </div>
+      <h2>Events</h2>
+      <div class="filter-group">
+        <label class="toggle-label">
+          <input type="checkbox" id="filter-upcoming" />
+          <span class="toggle-dot"></span>
+          <span class="toggle-text">Upcoming only</span>
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="sort-date" checked />
+          <span class="toggle-dot"></span>
+          <span class="toggle-text">Sort by date</span>
+        </label>
+        <button id="btn-create-event" class="btn btn-primary">
+          <span class="btn-icon">➕</span> Create Event
+        </button>
       </div>
-      <button id="btn-create-event" class="btn btn-primary">
-        <span class="btn-icon">＋</span> Create Event
-      </button>
     </section>
 
-    <!-- ── Events grid ── -->
+    <!-- Events Grid -->
     <section id="events-grid" class="events-grid">
-      <!-- Cards injected by JS -->
+      <!-- Injected by JS -->
     </section>
 
-    <!-- ── Empty state ── -->
+    <!-- Empty State -->
     <div id="empty-state" class="empty-state hidden">
-      <div class="empty-icon">🎉</div>
-      <h3>No events yet</h3>
-      <p>Create your first event to get started!</p>
+      <div class="empty-icon">🌵</div>
+      <h3>It's quiet here...</h3>
+      <p>No events found. Be the first to create one!</p>
     </div>
-
   </main>
 
-  <!-- ─── Modal: Create Event ─── -->
+  <!-- Modals -->
   <div id="modal-create" class="modal-overlay hidden">
-    <div class="modal glass-card">
+    <div class="modal">
       <button class="modal-close" id="close-create">&times;</button>
       <h2>Create New Event</h2>
       <form id="form-create-event">
         <div class="form-group">
           <label for="event-name">Event Name</label>
-          <input type="text" id="event-name" placeholder="e.g. Tech Conference 2026" required />
+          <input type="text" id="event-name" placeholder="e.g. Summer Festival 2026" required />
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -112,9 +116,8 @@
     </div>
   </div>
 
-  <!-- ─── Modal: Event Details ─── -->
   <div id="modal-details" class="modal-overlay hidden">
-    <div class="modal glass-card modal-lg">
+    <div class="modal modal-lg">
       <button class="modal-close" id="close-details">&times;</button>
       <div id="event-details-content">
         <!-- Injected by JS -->
@@ -122,7 +125,7 @@
     </div>
   </div>
 
-  <!-- ─── Toast container ─── -->
+  <!-- Toasts -->
   <div id="toast-container"></div>
 
   <script src="app.js"></script>

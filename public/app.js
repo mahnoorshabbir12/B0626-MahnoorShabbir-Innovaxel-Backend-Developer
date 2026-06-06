@@ -1,11 +1,15 @@
 /* ================================================================
    EventHub — Frontend Application
-   Fetch-based API client with dynamic DOM rendering
+   Fetch-based API client with dynamic DOM rendering & Theme support
    ================================================================ */
 
 const API = '/api';
 
 // ─── DOM Refs ──────────────────────────────────────────────────
+const $html = document.documentElement;
+const $themeToggle = document.getElementById('theme-toggle');
+const $themeKnob = document.querySelector('.theme-toggle-knob');
+
 const $eventsGrid = document.getElementById('events-grid');
 const $emptyState = document.getElementById('empty-state');
 const $modalCreate = document.getElementById('modal-create');
@@ -23,6 +27,23 @@ const $statAvailable = document.getElementById('stat-available');
 
 // ─── State ─────────────────────────────────────────────────────
 let allEvents = [];
+
+// ─── Theme Management ──────────────────────────────────────────
+function initTheme() {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  setTheme(savedTheme);
+
+  $themeToggle.addEventListener('click', () => {
+    const current = $html.getAttribute('data-theme');
+    setTheme(current === 'light' ? 'dark' : 'light');
+  });
+}
+
+function setTheme(theme) {
+  $html.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+  $themeKnob.textContent = theme === 'light' ? '☀️' : '🌙';
+}
 
 // ─── Helpers ───────────────────────────────────────────────────
 function formatDate(iso) {
@@ -53,7 +74,7 @@ function getInitials(name) {
 // ─── Toast Notifications ──────────────────────────────────────
 function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
-  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  const icons = { success: '✨', error: '⚠️', info: '💡' };
 
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
@@ -143,7 +164,7 @@ function renderEvents(events) {
   }
 
   $emptyState.classList.add('hidden');
-  $eventsGrid.innerHTML = events.map((event) => createEventCard(event)).join('');
+  $eventsGrid.innerHTML = events.map((event, index) => createEventCard(event, index)).join('');
 
   // Attach click listeners
   document.querySelectorAll('.event-card').forEach((card) => {
@@ -151,7 +172,7 @@ function renderEvents(events) {
   });
 }
 
-function createEventCard(event) {
+function createEventCard(event, index) {
   const upcoming = isUpcoming(event.date);
   const fillPct = Math.round(
     ((event.totalSeats - event.availableSeats) / event.totalSeats) * 100
@@ -171,19 +192,22 @@ function createEventCard(event) {
   if (fillPct >= 90) barClass = 'bar-danger';
   else if (fillPct >= 70) barClass = 'bar-warning';
 
+  // Inline delay for staggered pop-in animation
+  const delay = (index % 10) * 0.05;
+
   return `
-    <article class="event-card" data-id="${event.id}">
+    <article class="event-card" data-id="${event.id}" style="animation-delay: ${delay}s">
       <div class="event-card-header">
         <h3 class="event-card-title">${escapeHtml(event.name)}</h3>
         <span class="event-badge ${badgeClass}">${badgeText}</span>
       </div>
       <div class="event-card-meta">
         <div class="meta-item">
-          <span class="meta-icon">📅</span>
+          <span class="meta-icon">🕒</span>
           <span>${formatDate(event.date)}</span>
         </div>
         <div class="meta-item">
-          <span class="meta-icon">👥</span>
+          <span class="meta-icon">🎫</span>
           <span>${event.totalRegistrations} registered</span>
         </div>
       </div>
@@ -225,7 +249,7 @@ async function openEventDetails(eventId) {
       <h2 class="detail-title">${escapeHtml(event.name)}</h2>
       <div class="detail-meta">
         <div class="meta-item">
-          <span class="meta-icon">📅</span>
+          <span class="meta-icon">🕒</span>
           <span>${formatDate(event.date)}</span>
         </div>
       </div>
@@ -258,8 +282,8 @@ async function openEventDetails(eventId) {
       <div class="register-section">
         <h3>Register for this Event</h3>
         <div class="register-row">
-          <input type="text" id="register-name" placeholder="Enter your name" />
-          <button class="btn btn-primary btn-sm" id="btn-register">Register</button>
+          <input type="text" id="register-name" placeholder="Enter your full name" autocomplete="off" />
+          <button class="btn btn-register-action btn-sm" id="btn-register">Register Now</button>
         </div>
       </div>
     `
@@ -325,7 +349,7 @@ async function registerForEvent(eventId) {
   const result = await apiPost(`/events/${eventId}/register`, { userName });
 
   if (result.success) {
-    showToast(`${userName} registered successfully!`, 'success');
+    showToast(`Woohoo! ${userName} is registered.`, 'success');
     openEventDetails(eventId); // Refresh detail
     loadEvents(); // Refresh list
   } else {
@@ -338,7 +362,7 @@ async function cancelRegistration(regId, eventId) {
   const result = await apiPatch(`/registrations/${regId}/cancel`);
 
   if (result.success) {
-    showToast('Registration cancelled.', 'success');
+    showToast('Registration cancelled.', 'info');
     openEventDetails(eventId); // Refresh detail
     loadEvents(); // Refresh list
   } else {
@@ -366,7 +390,7 @@ $formCreate.addEventListener('submit', async (e) => {
   });
 
   if (result.success) {
-    showToast(`Event "${name}" created!`, 'success');
+    showToast(`Event "${name}" created successfully!`, 'success');
     $formCreate.reset();
     $modalCreate.classList.add('hidden');
     loadEvents();
@@ -407,5 +431,6 @@ document.addEventListener('keydown', (e) => {
 $filterUpcoming.addEventListener('change', loadEvents);
 $sortDate.addEventListener('change', loadEvents);
 
-// ─── Initial load ─────────────────────────────────────────────
+// ─── Initialize ─────────────────────────────────────────────
+initTheme();
 loadEvents();
