@@ -10,13 +10,9 @@ const { ApiError } = require('../middleware/errorHandler');
 
 const router = express.Router();
 
-// ────────────────────────────────────────────────────────────────
-// POST /api/events/:eventId/register  —  Register a user
-// ────────────────────────────────────────────────────────────────
 router.post('/events/:eventId/register', async (req, res, next) => {
   const { eventId } = req.params;
 
-  // Acquire mutex lock for this event to prevent race conditions
   const release = await mutex.acquire(eventId);
 
   try {
@@ -34,15 +30,12 @@ router.post('/events/:eventId/register', async (req, res, next) => {
       throw new ApiError(404, 'EVENT_NOT_FOUND', 'Event not found.');
     }
 
-    // --- Check event hasn't passed ---
     if (new Date(event.date) <= new Date()) {
       throw new ApiError(400, 'EVENT_PASSED', 'Cannot register for an event that has already passed.');
     }
 
-    // --- Load registrations ---
     const registrations = getRegistrations();
 
-    // --- Duplicate check (same user + same event, active status) ---
     const existingReg = registrations.find(
       (r) =>
         r.eventId === eventId &&
@@ -57,7 +50,6 @@ router.post('/events/:eventId/register', async (req, res, next) => {
       );
     }
 
-    // --- Seat availability check ---
     const activeCount = registrations.filter(
       (r) => r.eventId === eventId && r.status === 'active'
     ).length;
@@ -66,7 +58,6 @@ router.post('/events/:eventId/register', async (req, res, next) => {
       throw new ApiError(400, 'EVENT_FULL', 'This event is fully booked. No seats available.');
     }
 
-    // --- Create registration ---
     const newRegistration = {
       id: uuidv4(),
       eventId,
@@ -83,16 +74,11 @@ router.post('/events/:eventId/register', async (req, res, next) => {
   } catch (err) {
     next(err);
   } finally {
-    // Always release the lock
     mutex.release(eventId, release);
   }
 });
 
-// ────────────────────────────────────────────────────────────────
-// PATCH /api/registrations/:id/cancel  —  Cancel a registration
-// ────────────────────────────────────────────────────────────────
 router.patch('/registrations/:id/cancel', async (req, res, next) => {
-  // We need to find the registration first to know which event to lock
   const registrations = getRegistrations();
   const registration = registrations.find((r) => r.id === req.params.id);
 
@@ -100,11 +86,9 @@ router.patch('/registrations/:id/cancel', async (req, res, next) => {
     return next(new ApiError(404, 'REGISTRATION_NOT_FOUND', 'Registration not found.'));
   }
 
-  // Acquire lock on the event
   const release = await mutex.acquire(registration.eventId);
 
   try {
-    // Re-read after acquiring lock to get fresh data
     const freshRegistrations = getRegistrations();
     const freshReg = freshRegistrations.find((r) => r.id === req.params.id);
 
@@ -116,7 +100,6 @@ router.patch('/registrations/:id/cancel', async (req, res, next) => {
       throw new ApiError(400, 'ALREADY_CANCELLED', 'This registration has already been cancelled.');
     }
 
-    // --- Cancel ---
     freshReg.status = 'cancelled';
     freshReg.cancelledAt = new Date().toISOString();
 

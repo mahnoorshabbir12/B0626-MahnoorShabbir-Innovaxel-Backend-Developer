@@ -1,12 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 
-// ─── File Paths ────────────────────────────────────────────────
+// ─── File Paths 
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const EVENTS_FILE = path.join(DATA_DIR, 'events.json');
 const REGISTRATIONS_FILE = path.join(DATA_DIR, 'registrations.json');
 
-// ─── Ensure data directory and files exist ─────────────────────
+// ─── Ensure data directory and files exist 
 function ensureDataFiles() {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -19,9 +19,7 @@ function ensureDataFiles() {
   }
 }
 
-// ─── Mutex Lock (prevents race conditions) ─────────────────────
-// A simple in-memory mutex that serializes write operations per key.
-// This prevents two simultaneous registrations from overbooking.
+// ─── Mutex Lock (prevents race conditions) 
 class Mutex {
   constructor() {
     this._locks = new Map();
@@ -29,7 +27,6 @@ class Mutex {
 
   async acquire(key) {
     while (this._locks.has(key)) {
-      // Wait for the current lock holder to release
       await this._locks.get(key);
     }
     let release;
@@ -48,7 +45,7 @@ class Mutex {
 
 const mutex = new Mutex();
 
-// ─── Generic read / write helpers ──────────────────────────────
+// ─── Generic read / write helpers   
 function readJSON(filePath) {
   try {
     const raw = fs.readFileSync(filePath, 'utf-8');
@@ -65,7 +62,7 @@ function writeJSON(filePath, data) {
   fs.renameSync(tmpPath, filePath);
 }
 
-// ─── Events ────────────────────────────────────────────────────
+// ─── Events 
 function getEvents() {
   return readJSON(EVENTS_FILE);
 }
@@ -74,7 +71,7 @@ function saveEvents(events) {
   writeJSON(EVENTS_FILE, events);
 }
 
-// ─── Registrations ─────────────────────────────────────────────
+// ─── Registrations  
 function getRegistrations() {
   return readJSON(REGISTRATIONS_FILE);
 }
@@ -83,7 +80,7 @@ function saveRegistrations(registrations) {
   writeJSON(REGISTRATIONS_FILE, registrations);
 }
 
-// ─── Export ────────────────────────────────────────────────────
+// ─── Export 
 module.exports = {
   ensureDataFiles,
   mutex,

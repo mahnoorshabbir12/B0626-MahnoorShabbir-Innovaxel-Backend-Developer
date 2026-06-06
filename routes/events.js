@@ -4,10 +4,6 @@ const { getEvents, saveEvents, getRegistrations } = require('../data/store');
 const { ApiError } = require('../middleware/errorHandler');
 
 const router = express.Router();
-
-// ────────────────────────────────────────────────────────────────
-// POST /api/events  —  Create a new event
-// ────────────────────────────────────────────────────────────────
 router.post('/', (req, res, next) => {
   try {
     const { name, totalSeats, date } = req.body;
@@ -62,27 +58,20 @@ router.post('/', (req, res, next) => {
   }
 });
 
-// ────────────────────────────────────────────────────────────────
-// GET /api/events  —  List all events
-// Query params:  ?sort=date  &upcoming=true
-// ────────────────────────────────────────────────────────────────
 router.get('/', (req, res, next) => {
   try {
     let events = getEvents();
     const registrations = getRegistrations();
 
-    // Filter upcoming only
     if (req.query.upcoming === 'true') {
       const now = new Date();
       events = events.filter((e) => new Date(e.date) > now);
     }
 
-    // Sort by date (ascending by default)
     if (req.query.sort === 'date') {
       events.sort((a, b) => new Date(a.date) - new Date(b.date));
     }
 
-    // Enrich with availability info
     const enriched = events.map((event) => {
       const activeRegs = registrations.filter(
         (r) => r.eventId === event.id && r.status === 'active'
@@ -100,9 +89,6 @@ router.get('/', (req, res, next) => {
   }
 });
 
-// ────────────────────────────────────────────────────────────────
-// GET /api/events/:id  —  Single event detail
-// ────────────────────────────────────────────────────────────────
 router.get('/:id', (req, res, next) => {
   try {
     const events = getEvents();

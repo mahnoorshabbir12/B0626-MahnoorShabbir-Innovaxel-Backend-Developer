@@ -1,11 +1,6 @@
-/* ================================================================
-   EventHub — Frontend Application
-   Fetch-based API client with dynamic DOM rendering & Theme support
-   ================================================================ */
-
 const API = '/api';
 
-// ─── DOM Refs ──────────────────────────────────────────────────
+// ─── DOM Refs 
 const $html = document.documentElement;
 const $themeToggle = document.getElementById('theme-toggle');
 const $themeKnob = document.querySelector('.theme-toggle-knob');
@@ -25,10 +20,10 @@ const $statUpcoming = document.getElementById('stat-upcoming');
 const $statRegs = document.getElementById('stat-registrations');
 const $statAvailable = document.getElementById('stat-available');
 
-// ─── State ─────────────────────────────────────────────────────
+// ─── State 
 let allEvents = [];
 
-// ─── Theme Management ──────────────────────────────────────────
+// ─── Theme Management 
 function initTheme() {
   const savedTheme = localStorage.getItem('theme') || 'light';
   setTheme(savedTheme);
@@ -45,7 +40,7 @@ function setTheme(theme) {
   $themeKnob.textContent = theme === 'light' ? '☀️' : '🌙';
 }
 
-// ─── Helpers ───────────────────────────────────────────────────
+// ─── Helpers  
 function formatDate(iso) {
   const d = new Date(iso);
   return d.toLocaleDateString('en-US', {
@@ -71,7 +66,7 @@ function getInitials(name) {
     .slice(0, 2);
 }
 
-// ─── Toast Notifications ──────────────────────────────────────
+// ─── Toast Notifications  
 function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
   const icons = { success: '✨', error: '⚠️', info: '💡' };
@@ -87,7 +82,7 @@ function showToast(message, type = 'info') {
   }, 3500);
 }
 
-// ─── API Helpers ──────────────────────────────────────────────
+// ─── API Helpers  
 async function apiGet(path) {
   const res = await fetch(`${API}${path}`);
   return res.json();
@@ -107,7 +102,7 @@ async function apiPatch(path) {
   return res.json();
 }
 
-// ─── Fetch & Render Events ────────────────────────────────────
+// ─── Fetch & Render Events 
 async function loadEvents() {
   const params = new URLSearchParams();
   if ($filterUpcoming.checked) params.set('upcoming', 'true');
@@ -155,7 +150,7 @@ function animateCounter(el, target) {
   }, 30);
 }
 
-// ─── Render Event Cards ──────────────────────────────────────
+// ─── Render Event Cards 
 function renderEvents(events) {
   if (events.length === 0) {
     $eventsGrid.innerHTML = '';
@@ -166,7 +161,6 @@ function renderEvents(events) {
   $emptyState.classList.add('hidden');
   $eventsGrid.innerHTML = events.map((event, index) => createEventCard(event, index)).join('');
 
-  // Attach click listeners
   document.querySelectorAll('.event-card').forEach((card) => {
     card.addEventListener('click', () => openEventDetails(card.dataset.id));
   });
@@ -192,7 +186,6 @@ function createEventCard(event, index) {
   if (fillPct >= 90) barClass = 'bar-danger';
   else if (fillPct >= 70) barClass = 'bar-warning';
 
-  // Inline delay for staggered pop-in animation
   const delay = (index % 10) * 0.05;
 
   return `
@@ -230,7 +223,7 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-// ─── Event Details Modal ──────────────────────────────────────
+// ─── Event Details Modal 
 async function openEventDetails(eventId) {
   const result = await apiGet(`/events/${eventId}`);
   if (!result.success) {
@@ -319,13 +312,11 @@ async function openEventDetails(eventId) {
     </div>
   `;
 
-  // Attach register handler
   const $btnRegister = document.getElementById('btn-register');
   if ($btnRegister) {
     $btnRegister.addEventListener('click', () => registerForEvent(eventId));
   }
 
-  // Attach cancel handlers
   document.querySelectorAll('.btn-cancel').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -336,7 +327,7 @@ async function openEventDetails(eventId) {
   $modalDetails.classList.remove('hidden');
 }
 
-// ─── Register for Event ──────────────────────────────────────
+// ─── Register for Event 
 async function registerForEvent(eventId) {
   const $input = document.getElementById('register-name');
   const userName = $input.value.trim();
@@ -357,7 +348,7 @@ async function registerForEvent(eventId) {
   }
 }
 
-// ─── Cancel Registration ──────────────────────────────────────
+// ─── Cancel Registration 
 async function cancelRegistration(regId, eventId) {
   const result = await apiPatch(`/registrations/${regId}/cancel`);
 
@@ -370,7 +361,7 @@ async function cancelRegistration(regId, eventId) {
   }
 }
 
-// ─── Create Event ─────────────────────────────────────────────
+// ─── Create Event 
 $formCreate.addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -399,7 +390,7 @@ $formCreate.addEventListener('submit', async (e) => {
   }
 });
 
-// ─── Modal Controls ──────────────────────────────────────────
+// ─── Modal Controls
 document.getElementById('btn-create-event').addEventListener('click', () => {
   $modalCreate.classList.remove('hidden');
 });
@@ -427,10 +418,10 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// ─── Filter/Sort change ──────────────────────────────────────
+// ─── Filter/Sort change
 $filterUpcoming.addEventListener('change', loadEvents);
 $sortDate.addEventListener('change', loadEvents);
 
-// ─── Initialize ─────────────────────────────────────────────
+// ─── Initialize 
 initTheme();
 loadEvents();

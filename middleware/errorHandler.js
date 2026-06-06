@@ -1,7 +1,3 @@
-/**
- * Centralized error-handling middleware.
- * All route errors are funneled here for consistent API responses.
- */
 function errorHandler(err, _req, res, _next) {
   const statusCode = err.statusCode || 500;
   const code = err.code || 'INTERNAL_ERROR';
@@ -13,9 +9,7 @@ function errorHandler(err, _req, res, _next) {
   });
 }
 
-/**
- * Helper to create a structured API error.
- */
+// Helper to create a structured API error.
 class ApiError extends Error {
   constructor(statusCode, code, message) {
     super(message);
