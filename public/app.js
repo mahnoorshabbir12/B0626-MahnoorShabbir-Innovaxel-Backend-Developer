@@ -479,7 +479,10 @@ initTheme();
 loadEvents();
 
 // Auto-refresh events if their past/upcoming status changes
-setInterval(() => {
+let isRefreshingStatus = false;
+setInterval(async () => {
+  if (isRefreshingStatus) return;
+
   let shouldRefresh = false;
   const now = new Date();
   
@@ -499,9 +502,11 @@ setInterval(() => {
   });
 
   if (shouldRefresh) {
-    loadEvents();
+    isRefreshingStatus = true;
+    await loadEvents();
     if (currentOpenEventId && !$modalDetails.classList.contains('hidden')) {
-      openEventDetails(currentOpenEventId);
+      await openEventDetails(currentOpenEventId);
     }
+    isRefreshingStatus = false;
   }
-}, 60000);
+}, 1000);
