@@ -9,28 +9,28 @@
 
 :root {
   /* ── Light Theme */
-  --bg-base: #f5f0eb;
+  --bg-base: #faf9fd;
   --bg-surface: #ffffff;
-  --bg-surface-hover: #fefcfa;
-  --bg-input: #faf7f4;
-  --border-color: rgba(0, 0, 0, 0.08);
-  --border-hover: rgba(0, 0, 0, 0.15);
+  --bg-surface-hover: #f4f3fb;
+  --bg-input: #fdfcff;
+  --border-color: rgba(99, 102, 241, 0.12);
+  --border-hover: rgba(99, 102, 241, 0.25);
 
-  --text-primary: #1a1a2e;
-  --text-secondary: #555770;
-  --text-muted: #8e8ea0;
+  --text-primary: #1e1e2d;
+  --text-secondary: #5e5c7f;
+  --text-muted: #8e8ca6;
 
-  --accent-1: #ff6b6b;          /* Coral */
+  --accent-1: #f43f5e;          /* Rose */
   --accent-2: #10b981;          /* Emerald */
   --accent-3: #f59e0b;          /* Amber */
-  --accent-4: #3b82f6;          /* Sky blue */
-  --accent-gradient: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  --accent-4: #6366f1;          /* Indigo */
+  --accent-gradient: linear-gradient(135deg, #6366f1, #a855f7); /* Vibrant Purple/Indigo */
 
-  --card-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
-  --card-shadow-hover: 0 12px 40px rgba(255,107,107,0.15), 0 4px 12px rgba(0,0,0,0.08);
+  --card-shadow: 0 4px 14px rgba(99,102,241,0.05), 0 10px 30px rgba(168,85,247,0.06);
+  --card-shadow-hover: 0 16px 40px rgba(99,102,241,0.15), 0 6px 16px rgba(0,0,0,0.05);
 
-  --modal-overlay: rgba(26, 26, 46, 0.4);
-  --toast-bg: #1a1a2e;
+  --modal-overlay: rgba(30, 30, 45, 0.4);
+  --toast-bg: #1e1e2d;
   --toast-text: #fff;
 
   --radius-sm: 10px;
@@ -45,28 +45,28 @@
 
 /* ── Dark Theme ── */
 [data-theme="dark"] {
-  --bg-base: #111118;
-  --bg-surface: #1c1c28;
-  --bg-surface-hover: #24243a;
-  --bg-input: #16161f;
-  --border-color: rgba(255, 255, 255, 0.07);
+  --bg-base: #1e1e24;
+  --bg-surface: #26262d;
+  --bg-surface-hover: #2f2f38;
+  --bg-input: #212128;
+  --border-color: rgba(255, 255, 255, 0.08);
   --border-hover: rgba(255, 255, 255, 0.15);
 
-  --text-primary: #eaeaf0;
-  --text-secondary: #9d9db5;
-  --text-muted: #5e5e7a;
+  --text-primary: #f4f4f6;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
 
-  --accent-1: #ff7b7b;
+  --accent-1: #fb7185;
   --accent-2: #34d399;
   --accent-3: #fbbf24;
-  --accent-4: #60a5fa;
+  --accent-4: #818cf8;
 
-  --card-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.4);
-  --card-shadow-hover: 0 16px 48px rgba(255,123,123,0.12), 0 4px 16px rgba(0,0,0,0.5);
+  --card-shadow: 0 4px 14px rgba(0,0,0,0.2), 0 10px 30px rgba(0,0,0,0.3);
+  --card-shadow-hover: 0 16px 40px rgba(129,140,248,0.12), 0 6px 16px rgba(0,0,0,0.4);
 
-  --modal-overlay: rgba(0, 0, 0, 0.7);
-  --toast-bg: #2a2a3d;
-  --toast-text: #eaeaf0;
+  --modal-overlay: rgba(0, 0, 0, 0.75);
+  --toast-bg: #2b2b32;
+  --toast-text: #f4f4f6;
 }
 
 html {
@@ -89,13 +89,18 @@ body {
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.5;
+  opacity: 0.15;
+  filter: blur(90px);
+}
+
+[data-theme="dark"] .bg-shape {
+  opacity: 0.05;
 }
 
 .shape-1 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(255,107,107,0.12) 0%, transparent 70%);
+  background: var(--accent-4);
   top: -180px;
   right: -120px;
   animation: shapeOrbit 25s linear infinite;
@@ -104,7 +109,7 @@ body {
 .shape-2 {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(16,185,129,0.10) 0%, transparent 70%);
+  background: var(--accent-2);
   bottom: -100px;
   left: -80px;
   animation: shapeOrbit 30s linear infinite reverse;
@@ -113,20 +118,20 @@ body {
 .shape-3 {
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%);
+  background: var(--accent-1);
   top: 40%;
   left: 55%;
-  animation: shapePulse 8s ease-in-out infinite;
+  animation: shapePulse 10s ease-in-out infinite;
 }
 
 @keyframes shapeOrbit {
-  0%   { transform: rotate(0deg) translateX(20px) rotate(0deg); }
-  100% { transform: rotate(360deg) translateX(20px) rotate(-360deg); }
+  0%   { transform: rotate(0deg) translateX(40px) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(40px) rotate(-360deg); }
 }
 
 @keyframes shapePulse {
-  0%, 100% { transform: scale(1); opacity: 0.4; }
-  50%      { transform: scale(1.2); opacity: 0.7; }
+  0%, 100% { transform: scale(1); opacity: 0.15; }
+  50%      { transform: scale(1.3); opacity: 0.25; }
 }
 
 /* ─── Header */

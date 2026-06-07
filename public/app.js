@@ -13,6 +13,8 @@ const $detailsContent = document.getElementById('event-details-content');
 const $formCreate = document.getElementById('form-create-event');
 const $filterUpcoming = document.getElementById('filter-upcoming');
 const $sortDate = document.getElementById('sort-date');
+const $modalConfirmDelete = document.getElementById('modal-confirm-delete');
+const $btnConfirmDelete = document.getElementById('btn-confirm-delete');
 
 // Stats
 const $statTotal = document.getElementById('stat-total-events');
@@ -22,6 +24,7 @@ const $statAvailable = document.getElementById('stat-available');
 
 // ─── State 
 let allEvents = [];
+let eventToDelete = null;
 
 // ─── Theme Management 
 function initTheme() {
@@ -99,6 +102,11 @@ async function apiPost(path, body) {
 
 async function apiPatch(path) {
   const res = await fetch(`${API}${path}`, { method: 'PATCH' });
+  return res.json();
+}
+
+async function apiDelete(path) {
+  const res = await fetch(`${API}${path}`, { method: 'DELETE' });
   return res.json();
 }
 
@@ -239,7 +247,10 @@ async function openEventDetails(eventId) {
 
   $detailsContent.innerHTML = `
     <div class="detail-header">
-      <h2 class="detail-title">${escapeHtml(event.name)}</h2>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+        <h2 class="detail-title">${escapeHtml(event.name)}</h2>
+        <button class="btn btn-danger btn-sm" id="btn-delete-event">Delete</button>
+      </div>
       <div class="detail-meta">
         <div class="meta-item">
           <span class="meta-icon">🕒</span>
@@ -324,6 +335,14 @@ async function openEventDetails(eventId) {
     });
   });
 
+  const $btnDeleteEvent = document.getElementById('btn-delete-event');
+  if ($btnDeleteEvent) {
+    $btnDeleteEvent.addEventListener('click', () => {
+      eventToDelete = eventId;
+      $modalConfirmDelete.classList.remove('hidden');
+    });
+  }
+
   $modalDetails.classList.remove('hidden');
 }
 
@@ -404,10 +423,35 @@ document.getElementById('close-details').addEventListener('click', () => {
 });
 
 // Close modals on overlay click
-[$modalCreate, $modalDetails].forEach((overlay) => {
+[$modalCreate, $modalDetails, $modalConfirmDelete].forEach((overlay) => {
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) overlay.classList.add('hidden');
   });
+});
+
+// Delete confirm listeners
+$btnConfirmDelete.addEventListener('click', async () => {
+  if (!eventToDelete) return;
+  
+  const result = await apiDelete(`/events/${eventToDelete}`);
+  if (result.success) {
+    showToast('Event deleted successfully.', 'success');
+    $modalConfirmDelete.classList.add('hidden');
+    $modalDetails.classList.add('hidden');
+    loadEvents();
+  } else {
+    showToast(result.error?.message || 'Failed to delete event.', 'error');
+  }
+});
+
+document.getElementById('close-confirm-delete').addEventListener('click', () => {
+  $modalConfirmDelete.classList.add('hidden');
+  eventToDelete = null;
+});
+
+document.getElementById('btn-cancel-delete').addEventListener('click', () => {
+  $modalConfirmDelete.classList.add('hidden');
+  eventToDelete = null;
 });
 
 // Close modals on Escape
@@ -415,6 +459,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     $modalCreate.classList.add('hidden');
     $modalDetails.classList.add('hidden');
+    $modalConfirmDelete.classList.add('hidden');
   }
 });
 

@@ -1,6 +1,6 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
-const { getEvents, saveEvents, getRegistrations } = require('../data/store');
+const { getEvents, saveEvents, getRegistrations, saveRegistrations } = require('../data/store');
 const { ApiError } = require('../middleware/errorHandler');
 
 const router = express.Router();
@@ -116,6 +116,29 @@ router.get('/:id', (req, res, next) => {
         })),
       },
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete('/:id', (req, res, next) => {
+  try {
+    const events = getEvents();
+    const eventIndex = events.findIndex((e) => e.id === req.params.id);
+
+    if (eventIndex === -1) {
+      throw new ApiError(404, 'EVENT_NOT_FOUND', 'Event not found.');
+    }
+
+    events.splice(eventIndex, 1);
+    saveEvents(events);
+
+    // Optionally remove related registrations
+    const registrations = getRegistrations();
+    const remainingRegs = registrations.filter((r) => r.eventId !== req.params.id);
+    saveRegistrations(remainingRegs);
+
+    res.json({ success: true, data: { id: req.params.id } });
   } catch (err) {
     next(err);
   }
