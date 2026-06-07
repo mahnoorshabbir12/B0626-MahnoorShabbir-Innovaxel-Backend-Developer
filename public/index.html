@@ -95,9 +95,10 @@
   <div id="modal-create" class="modal-overlay hidden">
     <div class="modal">
       <button class="modal-close" id="close-create">&times;</button>
-      <h2>Create New Event</h2>
-      <form id="form-create-event">
-        <div class="form-group">
+      <div class="modal-body">
+        <h2>Create New Event</h2>
+        <form id="form-create-event">
+          <div class="form-group">
           <label for="event-name">Event Name</label>
           <input type="text" id="event-name" placeholder="e.g. Summer Festival 2026" required />
         </div>
@@ -113,13 +114,14 @@
         </div>
         <button type="submit" class="btn btn-primary btn-full">Create Event</button>
       </form>
+      </div>
     </div>
   </div>
 
   <div id="modal-details" class="modal-overlay hidden">
     <div class="modal modal-lg">
       <button class="modal-close" id="close-details">&times;</button>
-      <div id="event-details-content">
+      <div class="modal-body" id="event-details-content">
         <!-- Injected by JS -->
       </div>
     </div>

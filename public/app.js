@@ -248,8 +248,8 @@ async function openEventDetails(eventId) {
   $detailsContent.innerHTML = `
     <div class="detail-header">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-        <h2 class="detail-title">${escapeHtml(event.name)}</h2>
-        <button class="btn btn-danger btn-sm" id="btn-delete-event">Delete</button>
+        <h2 class="detail-title" style="padding-right: 1rem;">${escapeHtml(event.name)}</h2>
+        <button class="btn btn-danger btn-sm" id="btn-delete-event" style="margin-right: 3rem;">Delete</button>
       </div>
       <div class="detail-meta">
         <div class="meta-item">
