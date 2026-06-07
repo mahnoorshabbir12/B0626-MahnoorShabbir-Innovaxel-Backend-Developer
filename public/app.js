@@ -25,6 +25,7 @@ const $statAvailable = document.getElementById('stat-available');
 // ─── State 
 let allEvents = [];
 let eventToDelete = null;
+let currentOpenEventId = null;
 
 // ─── Theme Management 
 function initTheme() {
@@ -233,6 +234,7 @@ function escapeHtml(str) {
 
 // ─── Event Details Modal 
 async function openEventDetails(eventId) {
+  currentOpenEventId = eventId;
   const result = await apiGet(`/events/${eventId}`);
   if (!result.success) {
     showToast(result.error?.message || 'Failed to load event.', 'error');
@@ -420,12 +422,16 @@ document.getElementById('close-create').addEventListener('click', () => {
 
 document.getElementById('close-details').addEventListener('click', () => {
   $modalDetails.classList.add('hidden');
+  currentOpenEventId = null;
 });
 
 // Close modals on overlay click
 [$modalCreate, $modalDetails, $modalConfirmDelete].forEach((overlay) => {
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.classList.add('hidden');
+    if (e.target === overlay) {
+      overlay.classList.add('hidden');
+      if (overlay === $modalDetails) currentOpenEventId = null;
+    }
   });
 });
 
@@ -460,6 +466,7 @@ document.addEventListener('keydown', (e) => {
     $modalCreate.classList.add('hidden');
     $modalDetails.classList.add('hidden');
     $modalConfirmDelete.classList.add('hidden');
+    currentOpenEventId = null;
   }
 });
 
@@ -470,3 +477,31 @@ $sortDate.addEventListener('change', loadEvents);
 // ─── Initialize 
 initTheme();
 loadEvents();
+
+// Auto-refresh events if their past/upcoming status changes
+setInterval(() => {
+  let shouldRefresh = false;
+  const now = new Date();
+  
+  document.querySelectorAll('.event-card').forEach(card => {
+    const eventId = card.dataset.id;
+    const event = allEvents.find(e => e.id === eventId);
+    if (event) {
+      const isNowUpcoming = new Date(event.date) > now;
+      const badge = card.querySelector('.event-badge');
+      if (badge) {
+        const isRenderedPast = badge.classList.contains('badge-past');
+        if (isNowUpcoming === isRenderedPast) {
+          shouldRefresh = true;
+        }
+      }
+    }
+  });
+
+  if (shouldRefresh) {
+    loadEvents();
+    if (currentOpenEventId && !$modalDetails.classList.contains('hidden')) {
+      openEventDetails(currentOpenEventId);
+    }
+  }
+}, 60000);
